@@ -1,0 +1,22 @@
+{
+  "name": "articles-products-and-express",
+  "version": "0.0.1",
+  "description": "CMS",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "express",
+    "routes",
+    "handlebars"
+  ],
+  "author": "Cindy Jurgens",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "handlebars": "^4.0.11",
+    "method-override": "^2.3.10",
+    "route": "^0.2.5"
+  }
+}
