@@ -1,5 +1,8 @@
+// Modules
 const express = require('express');
 const router = express.Router();
+
+// Routes
 const articlesDb = require('../db/articles');
 
 router.get('/', (req, res) => {
