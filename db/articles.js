@@ -2,7 +2,8 @@ const articles = [];
 
 module.exports = {
   getAll: getAll,
-  getById: getById,
+  getByTitle: getByTitle,
+  editByTitle: editByTitle
 
 }
 
@@ -11,6 +12,10 @@ function getAll() {
   return articles;
 }
 
-function getById() {
+function getByTitle() {
+
+}
+
+function editByTitle() {
   
 }

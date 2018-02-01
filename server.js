@@ -5,28 +5,34 @@ const routers = express.Router();
 const bodyparser = require('body-parser');
 const methodOverride = require('method-override');
 
-// Application
-const app = express();
-app.engine('.hbs', handlebars({defaultLayout: 'main', extname: '.hbs'}))
-app.set('view engine', '.hbs');
-
-// Static public
-app.use(express.static('public'));
-
-// Middleware
-app.use(bodyParser.urlencoded({ extended: true }));
-
-// Routes
-const articlesRoute = require('../routes/articles');
-const productsRoute = require('../routes/products');
+const articlesRoute = require('./routes/articles');
+const productsRoute = require('./routes/products');
 
 // Consts
 const PORT = process.env.PORT || 8080
 
+// Application
+const app = express();
+
+// Static public
+app.use(express.static('public'));
+app.engine('.hbs', handlebars({defaultLayout: 'main', extname: '.hbs'}))
+app.set('view engine', '.hbs');
+
+
+// Middleware
+app.use(bodyparser.urlencoded({ extended: true }));
+
+// Routes
+app.use('/products', productsRoute);
 
 
 
 
+
+
+
+//Start server
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`)
 })
