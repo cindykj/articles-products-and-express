@@ -16,7 +16,9 @@ const app = express();
 
 // Static public
 app.use(express.static('public'));
-app.engine('.hbs', handlebars({defaultLayout: 'main', extname: '.hbs'}))
+app.engine('.hbs', handlebars({defaultLayout: 'main', extname: '.hbs'}));
+
+ 
 app.set('view engine', '.hbs');
 
 

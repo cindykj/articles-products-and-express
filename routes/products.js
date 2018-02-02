@@ -14,31 +14,35 @@ router.get('/', (req, res) => {
   res.json(locals);
 })
 
+// Render the New product page
+router.get('/new', (req, res) => {
+  return res.render('new');
+});// closing for render new page
+
 // Posts new product
 router.post('/', (req, res) => {
   let body = req.body;
-
+  
   let data = {
     name: body.name,
     price: Number(body.price),
     inventory: Number(body.inventory),
   }
-
-  let validate = validateProduct(data);
-  if(validate === true) {
-    console.log(validate);
-    productsDb.createProduct(data);
+  
+  let productErrs = productHasErrs(data);
+  if (productErrs) {
+    console.log(productErrs);
+    return res.render('new', productErrs) 
   } else {
-    console.log(validate);
-    res.send(validate);
+    console.log(productErrs);
+    productsDb.createProduct(data);
+    return res.redirect('/products') //goes to new folder
   }
-  
-  
-  // let newProduct = productsDb.createProduct(req.body);
-
-  // res.json(newProduct);
-
 }); // closing for post
+
+
+
+
 
 // Edits a product
 // router.put('/', (req, res) => {
@@ -68,14 +72,15 @@ router.post('/', (req, res) => {
 
 
 // Validate function for Products
-function validateProduct(data) {
+function productHasErrs(data) {
   let isValid = true;
   let errors = {
-    name: data.name,
-    price: Number(data.price),
-    inventory: Number(data.inventory)
+    name: null,
+    price: null,
+    inventory: null
   };
 
+//fix this later
   if (typeof data.name !== 'string') {
     isValid = false;
     errors.name = 'Name cannot contain numbers.';
@@ -88,7 +93,11 @@ function validateProduct(data) {
 
   if (data.price === 0) {
     isValid = false;
-    errors.price = 'Price must be greater than 0.';
+    if(errors.price) {
+      errors.price + ' Price must be greater than 0.' 
+    } else {
+      errors.price = 'Price must be greater than 0.'
+    }
   }
 
   if (isNaN(data.inventory)) {
@@ -105,3 +114,6 @@ function validateProduct(data) {
 
 
 module.exports = router
+//vv this is for post, use for reference only
+// let newProduct = productsDb.createProduct(req.body);
+// res.json(newProduct);
