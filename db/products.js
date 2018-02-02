@@ -5,6 +5,7 @@ let product;
 module.exports = {
   createProduct: createProduct,
   getAll: getAll,
+  // edit: edit,
   // getById: getById,
   // insert: insert,
 }
@@ -25,13 +26,6 @@ function createProduct(data) {
   return catalog;
 }
 
-
-
-// Retrieves all products
-// function getAll() {
-//   return products;
-// }
-
-// function getById() {
+// function edit(data) {
 
 // }

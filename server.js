@@ -25,6 +25,7 @@ app.use(bodyparser.urlencoded({ extended: true }));
 
 // Routes
 app.use('/products', productsRoute);
+app.use('/articles', articlesRoute);
 
 
 

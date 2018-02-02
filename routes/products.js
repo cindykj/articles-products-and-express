@@ -16,15 +16,36 @@ router.get('/', (req, res) => {
 
 // Posts new product
 router.post('/', (req, res) => {
-  let newProduct = productsDb.createProduct(req.body);
-  console.log()
-  res.json(newProduct);
-});
+  let body = req.body;
 
-// // Edits a product
+  let data = {
+    name: body.name,
+    price: Number(body.price),
+    inventory: Number(body.inventory),
+  }
+
+  let validate = validateProduct(data);
+  if(validate === true) {
+    console.log(validate);
+    productsDb.createProduct(data);
+  } else {
+    console.log(validate);
+    res.send(validate);
+  }
+  
+  
+  // let newProduct = productsDb.createProduct(req.body);
+
+  // res.json(newProduct);
+
+}); // closing for post
+
+// Edits a product
 // router.put('/', (req, res) => {
-
+//   let edited = productsDb.edit(req.body);
+//   res.json(edited);
 // });
+
 
 // // Removes product by id
 // router.delete('/products/:id', (req, res) => {
@@ -44,5 +65,43 @@ router.post('/', (req, res) => {
 // })
 
 //
+
+
+// Validate function for Products
+function validateProduct(data) {
+  let isValid = true;
+  let errors = {
+    name: data.name,
+    price: Number(data.price),
+    inventory: Number(data.inventory)
+  };
+
+  if (typeof data.name !== 'string') {
+    isValid = false;
+    errors.name = 'Name cannot contain numbers.';
+  }
+
+  if (isNaN(data.price)) {
+    isValid = false;
+    errors.price = 'Price must only contain numbers.';
+  }
+
+  if (data.price === 0) {
+    isValid = false;
+    errors.price = 'Price must be greater than 0.';
+  }
+
+  if (isNaN(data.inventory)) {
+    isValid = false;
+    errors.inventory = 'Inventory must only contain numbers.';
+  }
+
+  if (isValid) {
+    return true;
+  } else {
+    return errors;
+  }
+}; // closing for validateProduct
+
 
 module.exports = router
