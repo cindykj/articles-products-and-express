@@ -4,108 +4,140 @@ const router = express.Router();
 const bodyparser = require('body-parser');
 const methodOverride = require('method-override');
 
-
 // Routes
-const productsDb = require('../db/products');
+const knex = require('../knex/knex.js');
+
 
 // Retrieves all products
-router.get('/', (req, res) => {
-  let products = productsDb.getAll()
-  let locals = {
-    catalog: products
-  }
-  res.json(locals);
-})
+// router.get('/', (req, res) => {
+//   let products = productsDb.getAll()
+//   let locals = {
+//     catalog: products
+//   }
+//   res.json(locals);
+// })
 
 // Render the New product page
-router.get('/new', (req, res) => {
-  return res.render('new');
-}); // closing for render new page
+// router.get('/new', (req, res) => {
+//   return res.render('new');
+// }); // closing for render new page
 
 // Posts new product
+// router.post('/', (req, res) => {
+//   let body = req.body;
+
+//   let data = {
+//     name: body.name,
+//     price: parseFloat(body.price),
+//     inventory: parseFloat(body.inventory),
+//   }
+
+//   let productErrs = productHasErrs(data);
+//   if (productErrs) {
+//     console.log(productErrs);
+//     return res.render('new', productErrs)
+//   } else {
+//     console.log(productErrs);
+//     productsDb.createProduct(data);
+//     return res.redirect('/products') //goes to new folder
+//   }
+// }); // closing for post
+
+// KNEX POST NEW PRODUCT 
 router.post('/', (req, res) => {
   let body = req.body;
-
-  let data = {
-    name: body.name,
-    price: parseFloat(body.price),
-    inventory: parseFloat(body.inventory),
+  let {name, price, inventory} = req.body;
+  if (!(name || !price || !inventory)) { 
+    return res.status(400).json({message: `Must POST all product fields`});
   }
-
-  let productErrs = productHasErrs(data);
-  if (productErrs) {
-    console.log(productErrs);
-    return res.render('new', productErrs)
-  } else {
-    console.log(productErrs);
-    productsDb.createProduct(data);
-    return res.redirect('/products') //goes to new folder
-  }
-}); // closing for post
-
-router.get('/:id', (req, res) => {
-  let getID = productsDb.findByID(req.params.id);
-  return res.json(getID)
-}) // closing for get product
-
-
-// Edits a product
-router.put('/:id', (req, res) => {
-  let idNum = parseFloat(req.params.id);
-  let edited = productsDb.editProduct(req.body);
-  res.json(edited);
-}); // closing for put/edit
-
-router.delete('/:id', (req, res) => {
-  let idNum = parseFloat(req.params.id);
-  if (productsDb.checkID(idNum)) {
-    productsDb.deleteProduct(idNum);
-    res.render('index', productsDb.successMsg('deleteSuccess'))
-  } else {
-    return res.redirect('/products')
-  }
-}); //closing delete
-
-// Validate function for Products
-function productHasErrs(data) {
-  let isValid = true;
-  let errors = {
-    name: null,
-    price: null,
-    inventory: null
-  };
-
-  //fix this later
-  if (typeof data.name !== 'string') {
-    isValid = false;
-    errors.name = 'Name cannot contain numbers.';
-  }
-
-  if (isNaN(data.price)) {
-    isValid = false;
-    errors.price = 'Price must only contain numbers.';
-  }
-
-  if (data.price === 0) {
-    isValid = false;
-    if (errors.price) {
-      errors.price + ' Price must be greater than 0.'
-    } else {
-      errors.price = 'Price must be greater than 0.'
+  // console.log(body);
+  return knex.raw(`SELECT * FROM products WHERE name = (?)`, [name])
+  .then(result => {
+    if(result.rows.length) {
+      throw new Error(`Product already exists`)
     }
-  }
+    return result;
+  })
 
-  if (isNaN(data.inventory)) {
-    isValid = false;
-    errors.inventory = 'Inventory must only contain numbers.';
-  }
+  .then(newProduct => {
+    return knex.raw(`INSERT INTO products (name, price, inventory) VALUES (?, ?, ?) RETURNING *`, [name, price, inventory])
+  })
 
-  if (isValid) {
-    return false;
-  } else {
-    return errors;
-  }
-}; // closing for validateProduct
+  .then(newProduct => {
+    return res.json(newProduct.rows[0]);
+  })
+
+  .catch(err => {
+    return res.status(400).json ({ 'message': err.message })
+  })
+}); // closing for post new product
+
+
+
+
+// router.get('/:id', (req, res) => {
+//   let getID = productsDb.findByID(req.params.id);
+//   return res.json(getID)
+// }) // closing for get product
+
+
+// // Edits a product
+// router.put('/:id', (req, res) => {
+//   let idNum = parseFloat(req.params.id);
+//   let edited = productsDb.editProduct(req.body);
+//   res.json(edited);
+// }); // closing for put/edit
+
+// router.delete('/:id', (req, res) => {
+//   let idNum = parseFloat(req.params.id);
+//   if (productsDb.checkID(idNum)) {
+//     productsDb.deleteProduct(idNum);
+//     res.render('index', productsDb.successMsg('deleteSuccess'))
+//   } else {
+//     return res.redirect('/products')
+//   }
+// }); //closing delete
+
+// // Validate function for Products
+// function productHasErrs(data) {
+//   let isValid = true;
+//   let errors = {
+//     name: null,
+//     price: null,
+//     inventory: null
+//   };
+
+//   //fix this later
+//   if (typeof data.name !== 'string') {
+//     isValid = false;
+//     errors.name = 'Name cannot contain numbers.';
+//   }
+
+//   if (isNaN(data.price)) {
+//     isValid = false;
+//     errors.price = 'Price must only contain numbers.';
+//   }
+
+//   if (data.price === 0) {
+//     isValid = false;
+//     if (errors.price) {
+//       errors.price + ' Price must be greater than 0.'
+//     } else {
+//       errors.price = 'Price must be greater than 0.'
+//     }
+//   }
+
+//   if (isNaN(data.inventory)) {
+//     isValid = false;
+//     errors.inventory = 'Inventory must only contain numbers.';
+//   }
+
+//   if (isValid) {
+//     return false;
+//   } else {
+//     return errors;
+//   }
+// }; // closing for validateProduct
 
 
 module.exports = router
