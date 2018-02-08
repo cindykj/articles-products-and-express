@@ -1,6 +1,9 @@
 // Modules
 const express = require('express');
 const router = express.Router();
+const bodyparser = require('body-parser');
+const methodOverride = require('method-override');
+
 
 // Routes
 const productsDb = require('../db/products');
@@ -17,22 +20,22 @@ router.get('/', (req, res) => {
 // Render the New product page
 router.get('/new', (req, res) => {
   return res.render('new');
-});// closing for render new page
+}); // closing for render new page
 
 // Posts new product
 router.post('/', (req, res) => {
   let body = req.body;
-  
+
   let data = {
     name: body.name,
-    price: Number(body.price),
-    inventory: Number(body.inventory),
+    price: parseFloat(body.price),
+    inventory: parseFloat(body.inventory),
   }
-  
+
   let productErrs = productHasErrs(data);
   if (productErrs) {
     console.log(productErrs);
-    return res.render('new', productErrs) 
+    return res.render('new', productErrs)
   } else {
     console.log(productErrs);
     productsDb.createProduct(data);
@@ -40,36 +43,28 @@ router.post('/', (req, res) => {
   }
 }); // closing for post
 
-
-
+router.get('/:id', (req, res) => {
+  let getID = productsDb.findByID(req.params.id);
+  return res.json(getID)
+}) // closing for get product
 
 
 // Edits a product
-// router.put('/', (req, res) => {
-//   let edited = productsDb.edit(req.body);
-//   res.json(edited);
-// });
+router.put('/:id', (req, res) => {
+  let idNum = parseFloat(req.params.id);
+  let edited = productsDb.editProduct(req.body);
+  res.json(edited);
+}); // closing for put/edit
 
-
-// // Removes product by id
-// router.delete('/products/:id', (req, res) => {
-
-// });
-
-// // Renders display all products
-// router.get('/products', (req, res) => {
-//   res.sendFile('index.hbs', {
-//     root: _dirname + '/products'
-//   });
-// });
-
-// // Displays product info via ID
-// router.get('/products/:id', (req, res) => {
-//   res.sendFile()
-// })
-
-//
-
+router.delete('/:id', (req, res) => {
+  let idNum = parseFloat(req.params.id);
+  if (productsDb.checkID(idNum)) {
+    productsDb.deleteProduct(idNum);
+    res.render('index', productsDb.successMsg('deleteSuccess'))
+  } else {
+    return res.redirect('/products')
+  }
+}); //closing delete
 
 // Validate function for Products
 function productHasErrs(data) {
@@ -80,7 +75,7 @@ function productHasErrs(data) {
     inventory: null
   };
 
-//fix this later
+  //fix this later
   if (typeof data.name !== 'string') {
     isValid = false;
     errors.name = 'Name cannot contain numbers.';
@@ -93,8 +88,8 @@ function productHasErrs(data) {
 
   if (data.price === 0) {
     isValid = false;
-    if(errors.price) {
-      errors.price + ' Price must be greater than 0.' 
+    if (errors.price) {
+      errors.price + ' Price must be greater than 0.'
     } else {
       errors.price = 'Price must be greater than 0.'
     }
@@ -106,7 +101,7 @@ function productHasErrs(data) {
   }
 
   if (isValid) {
-    return true;
+    return false;
   } else {
     return errors;
   }
@@ -114,6 +109,8 @@ function productHasErrs(data) {
 
 
 module.exports = router
+
+
 //vv this is for post, use for reference only
 // let newProduct = productsDb.createProduct(req.body);
 // res.json(newProduct);

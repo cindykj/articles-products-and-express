@@ -24,10 +24,13 @@ app.set('view engine', '.hbs');
 
 // Middleware
 app.use(bodyparser.urlencoded({ extended: true }));
+app.use(methodOverride('X-HTTP-Method-Override'));
+
 
 // Routes
 app.use('/products', productsRoute);
 app.use('/articles', articlesRoute);
+
 
 
 
