@@ -4,7 +4,7 @@ exports.up = function(knex, Promise) {
     table.increments('id');
     table.string('name').notNullable();
     table.integer('price').notNullable();
-    table.interger('inventory').notNullable();
+    table.integer('inventory').notNullable();
     table.timestamp('created_at').defaultTo(knex.fn.now())
     table.timestamp('updated_at').defaultTo(knex.fn.now())
   })
