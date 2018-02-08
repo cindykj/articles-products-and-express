@@ -1,9 +1,10 @@
 // Modules
 const express = require('express');
+const bodyparser = require('body-parser');
 const handlebars = require('express-handlebars');
 const routers = express.Router();
-const bodyparser = require('body-parser');
 const methodOverride = require('method-override');
+const knex = require('./knex/knex.js');
 
 const articlesRoute = require('./routes/articles');
 const productsRoute = require('./routes/products');
@@ -18,24 +19,15 @@ const app = express();
 app.use(express.static('public'));
 app.engine('.hbs', handlebars({defaultLayout: 'main', extname: '.hbs'}));
 
- 
 app.set('view engine', '.hbs');
-
 
 // Middleware
 app.use(bodyparser.urlencoded({ extended: true }));
 app.use(methodOverride('X-HTTP-Method-Override'));
 
-
 // Routes
 app.use('/products', productsRoute);
 app.use('/articles', articlesRoute);
-
-
-
-
-
-
 
 
 //Start server
